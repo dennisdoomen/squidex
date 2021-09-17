@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using Enablon.Extensions.Domain.WorkItemAggregate;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Squidex.Infrastructure.Commands;
@@ -12,7 +13,7 @@ namespace Enablon.Extensions
     {
         public void ConfigureServices(IServiceCollection services, IConfiguration config)
         {
-            services.AddSingleton<ICustomCommandMiddleware, ConnectRiskAssessmentToParentWorkItem>();
+            services.AddSingleton<ICustomCommandMiddleware, ConnectRiskAssessmentToParentWorkItemCommandMiddleware>();
         }
     }
 }
