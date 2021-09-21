@@ -9,7 +9,7 @@ namespace Enablon.Extensions.Common
     {
         public static string[] GetFromJsonArray(this ContentData data, string key)
         {
-            if (data.TryGetValue("riskAssessment", out ContentFieldData? fieldData))
+            if (data.TryGetValue(key, out ContentFieldData? fieldData))
             {
                 return fieldData!.Values.OfType<JsonArray>().SelectMany(x => x).Select(x => x.ToString()).ToArray();
             }
@@ -25,7 +25,7 @@ namespace Enablon.Extensions.Common
                 array.Add(JsonValue.Create(value));
             }
 
-            data["Owner"] = new ContentFieldData
+            data[key] = new ContentFieldData
             {
                 ["iv"] = array
             };

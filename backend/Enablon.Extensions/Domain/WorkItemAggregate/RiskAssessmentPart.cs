@@ -29,7 +29,7 @@ namespace Enablon.Extensions.Domain.WorkItemAggregate
         {
             get
             {
-                string[] ids = data.GetFromJsonArray("Owner");
+                string[] ids = data.GetFromJsonArray("owner");
                 if (ids.Length > 1)
                 {
                     throw new ValidationException(
@@ -42,11 +42,11 @@ namespace Enablon.Extensions.Domain.WorkItemAggregate
             {
                 if (value == null)
                 {
-                    data.Remove("Owner");
+                    data.Remove("owner");
                 }
                 else
                 {
-                    data.SetAsJsonArray("Owner", new[] { value.Value.ToString()});
+                    data.SetAsJsonArray("owner", new[] { value.Value.ToString()});
                 }
             }
         }

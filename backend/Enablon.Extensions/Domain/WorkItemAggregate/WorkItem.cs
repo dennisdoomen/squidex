@@ -31,7 +31,7 @@ namespace Enablon.Extensions.Domain.WorkItemAggregate
         {
             get
             {
-                string[] referencedIds = date.GetFromJsonArray("riskAssessment");
+                string[] referencedIds = date.GetFromJsonArray("riskAssessmentPart");
                 if (referencedIds.Length > 1)
                 {
                     throw new ValidationException(
@@ -41,5 +41,7 @@ namespace Enablon.Extensions.Domain.WorkItemAggregate
                 return referencedIds.Any() ? DomainId.Create(referencedIds.Single()) : null;
             }
         }
+
+        public long Version => entity.Version;
     }
 }
