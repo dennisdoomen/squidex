@@ -4,7 +4,6 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Squidex.Infrastructure.Commands;
-using Squidex.Infrastructure.EventSourcing;
 using Squidex.Infrastructure.Plugins;
 
 namespace Enablon.Extensions
@@ -16,6 +15,7 @@ namespace Enablon.Extensions
         {
             services.AddSingleton<ICustomCommandMiddleware, ConnectRiskAssessmentToParentWorkItemCommandMiddleware>();
             services.AddSingleton<ICustomCommandMiddleware, ProvisionInitialTenantSchema>();
+            services.AddSingleton<ICustomCommandMiddleware, PreventRemovingRiskAssessmentPartWhenInUseCommandMiddleware>();
         }
     }
 }
