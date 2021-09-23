@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Squidex.Domain.Apps.Entities.Contents;
 using Squidex.Domain.Apps.Entities.Contents.Commands;
 using Squidex.Infrastructure.Commands;
@@ -28,7 +28,7 @@ namespace Enablon.Extensions.Domain.WorkItemAggregate
 
             if (context.IsCompleted &&
                 context.Command is ContentDataCommand updateRequest &&
-                updateRequest.SchemaId.Name == WorkItem.SchemaName)
+                WorkItem.AppliesTo(updateRequest))
             {
                 await HandleWorkItemChange(context, updateRequest);
             }

@@ -2,6 +2,7 @@
 using Enablon.Extensions.Common;
 using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Domain.Apps.Entities.Contents;
+using Squidex.Domain.Apps.Entities.Contents.Commands;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.Commands;
 using Squidex.Infrastructure.Validation;
@@ -13,10 +14,14 @@ namespace Enablon.Extensions.Domain.WorkItemAggregate
     /// </summary>
     internal class WorkItem : ActiveRecord
     {
-        public const string SchemaName = "workitem";
-        
+        private const string SchemaName = "workitem";
         private readonly ContentData date;
         private readonly IContentEntity entity;
+
+        public static bool AppliesTo(ContentCommand contentCommand)
+        {
+            return contentCommand.SchemaId.Name == SchemaName;
+        }
 
         public WorkItem(ICommandBus commandBus, DomainContext context, IContentEntity entity) 
             : base(commandBus, context)

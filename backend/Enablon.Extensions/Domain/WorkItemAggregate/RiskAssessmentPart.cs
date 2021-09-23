@@ -12,6 +12,7 @@ namespace Enablon.Extensions.Domain.WorkItemAggregate
 {
     internal class RiskAssessmentPart : ActiveRecord
     {
+        private const string SchemaName = "riskassessmentpart";
         private readonly IContentEntity entity;
         private readonly ContentData data;
 
@@ -49,6 +50,11 @@ namespace Enablon.Extensions.Domain.WorkItemAggregate
                     data.SetAsJsonArray("owner", new[] { value.Value.ToString()});
                 }
             }
+        }
+
+        public static bool AppliesTo(ContentCommand contentCommand)
+        {
+            return contentCommand.SchemaId.Name == SchemaName;
         }
 
         public Task Save()
