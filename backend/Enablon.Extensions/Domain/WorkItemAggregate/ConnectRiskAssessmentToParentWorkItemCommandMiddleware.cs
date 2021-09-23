@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Squidex.Domain.Apps.Entities.Contents;
 using Squidex.Domain.Apps.Entities.Contents.Commands;
 using Squidex.Infrastructure.Commands;
@@ -36,12 +36,7 @@ namespace Enablon.Extensions.Domain.WorkItemAggregate
 
         private async Task HandleWorkItemChange(CommandContext context, ContentDataCommand updateRequest)
         {
-            var factory = new DomainEntityFactory(contentLoader, context.CommandBus, new DomainContext
-            {
-                Identity = updateRequest.Actor,
-                Principal = updateRequest.User,
-                Tenant = updateRequest.AppId
-            });
+            var factory = new DomainEntityFactory(contentLoader, context);
 
             var newState = factory.BuildWorkItemFrom(context.Result<IContentEntity>());
 
