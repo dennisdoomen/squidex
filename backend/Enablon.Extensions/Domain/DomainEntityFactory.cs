@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Enablon.Extensions.Domain.WorkItemAggregate;
 using Squidex.Domain.Apps.Entities.Contents;
+using Squidex.Domain.Apps.Entities.Contents.Commands;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.Commands;
 
@@ -12,11 +14,24 @@ namespace Enablon.Extensions.Domain
         private readonly ICommandBus commandBus;
         private readonly DomainContext context;
 
-        public DomainEntityFactory(IContentLoader contentLoader, ICommandBus commandBus, DomainContext context)
+        public DomainEntityFactory(IContentLoader contentLoader, CommandContext commandContext)
         {
             this.contentLoader = contentLoader;
-            this.commandBus = commandBus;
-            this.context = context;
+            commandBus = commandContext.CommandBus;
+
+            if (commandContext.Command is ContentCommand contentCommand)
+            {
+                context = new DomainContext
+                {
+                    Identity = contentCommand.Actor,
+                    Principal = contentCommand.User,
+                    Tenant = contentCommand.AppId
+                };
+            }
+            else
+            {
+                throw new ArgumentException("This constructor only works for content commands");
+            }
         }
 
         public async Task<WorkItem?> FindWorkItem(DomainId id, long expectedVersion)

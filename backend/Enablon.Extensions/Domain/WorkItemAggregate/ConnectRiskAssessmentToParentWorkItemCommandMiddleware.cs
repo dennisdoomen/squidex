@@ -27,27 +27,26 @@ namespace Enablon.Extensions.Domain.WorkItemAggregate
             await next(context);
 
             if (context.IsCompleted &&
-                context.Command is UpdateContent updateRequest &&
-                updateRequest.SchemaId.Name == WorkItem.SchemaName)
+                context.Command is ContentDataCommand updateRequest &&
+                WorkItem.AppliesTo(updateRequest))
             {
                 await HandleWorkItemChange(context, updateRequest);
             }
         }
 
-        private async Task HandleWorkItemChange(CommandContext context, UpdateContent updateRequest)
+        private async Task HandleWorkItemChange(CommandContext context, ContentDataCommand updateRequest)
         {
-            var factory = new DomainEntityFactory(contentLoader, context.CommandBus, new DomainContext
-            {
-                Identity = updateRequest.Actor,
-                Principal = updateRequest.User,
-                Tenant = updateRequest.AppId
-            });
+            var factory = new DomainEntityFactory(contentLoader, context);
 
             var newState = factory.BuildWorkItemFrom(context.Result<IContentEntity>());
 
-            var previousState = await factory.FindWorkItem(
-                updateRequest.ContentId,
-                updateRequest.ExpectedVersion);
+            WorkItem? previousState = null;
+            if (newState.Version > 1)
+            {
+                previousState = await factory.FindWorkItem(
+                    updateRequest.ContentId,
+                    updateRequest.ExpectedVersion);
+            }
 
             if (previousState == null || newState.RiskAssessmentPart != previousState.RiskAssessmentPart)
             {
