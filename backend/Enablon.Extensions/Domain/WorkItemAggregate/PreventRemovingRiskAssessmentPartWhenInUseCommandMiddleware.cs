@@ -20,9 +20,9 @@ namespace Enablon.Extensions.Domain.WorkItemAggregate
         {
             if (context.Command is ContentCommand command && (IsDeleteRequest(command) || IsArchiveRequest(command)))
             {
-                var factory = new DomainEntityFactory(contentLoader, context);
+                var factory = new EntityRepository(contentLoader, context.CommandBus);
 
-                var part = await factory.FindRiskAssessmentPart(command.ContentId);
+                var part = await factory.FindRiskAssessmentPart(command.AppId.Id, command.ContentId);
                 if (part?.Owner != null)
                 {
                     throw new ValidationException($"You cannot delete this item. It is part of the work item {part.Owner}");
@@ -36,13 +36,13 @@ namespace Enablon.Extensions.Domain.WorkItemAggregate
         {
             return
                 command is ChangeContentStatus changeContentStatus
-                && RiskAssessmentPart.AppliesTo(changeContentStatus)
+                && RiskAssessmentPart.AppliesTo(changeContentStatus.SchemaId)
                 && changeContentStatus.Status == Status.Archived;
         }
 
         private static bool IsDeleteRequest(ContentCommand command)
         {
-            return RiskAssessmentPart.AppliesTo(command);
+            return command is DeleteContent && RiskAssessmentPart.AppliesTo(command.SchemaId);
         }
     }
 }

@@ -35,7 +35,7 @@ namespace Enablon.Extensions.Provisioning
                             .AsDropDown("1", "2")
                             .Required())
                         .Build();
-
+                
                 var workItemSchema =
                     SchemaBuilder.Create("WorkItem")
                         .AddString("RegistrationNumber", f => f
@@ -51,7 +51,12 @@ namespace Enablon.Extensions.Provisioning
                             .Label("Variant")
                             .Length(100)
                             .Required())
+                        .AddString("State", f => f
+                            .Required()
+                            .AsDropDown("Requesting", "AwaitingVerification", "AwaitingIssue", "Issued", "Active", "Revalidate", "Expired"))
                         .AddReferences("RiskAssessmentPart", f => f
+                            // TODO: Set maximum number of references
+                            // See https://support.squidex.io/t/schemabuilder-api-misses-settings/3572/2
                             .WithSchemaId(riskAssessmentPartSchema.SchemaId)
                             )
                         .Build();

@@ -1,36 +1,42 @@
 ﻿using System.Linq;
-using System.Threading.Tasks;
 using Enablon.Extensions.Common;
 using Squidex.Domain.Apps.Core.Contents;
-using Squidex.Domain.Apps.Entities.Contents;
-using Squidex.Domain.Apps.Entities.Contents.Commands;
 using Squidex.Infrastructure;
-using Squidex.Infrastructure.Commands;
 using Squidex.Infrastructure.Validation;
 
 namespace Enablon.Extensions.Domain.WorkItemAggregate
 {
-    internal class RiskAssessmentPart : ActiveRecord
+    internal class RiskAssessmentPart
     {
         private const string SchemaName = "riskassessmentpart";
-        private readonly IContentEntity entity;
-        private readonly ContentData data;
 
-        public RiskAssessmentPart(ICommandBus commandBus, DomainContext context, IContentEntity entity) 
-            : base(commandBus, context)
+        public RiskAssessmentPart(NamedId<DomainId> tenant, NamedId<DomainId> schema, DomainId id, ContentData data, long version = -1)
         {
-            this.entity = entity;
-            data = entity.Data.Clone();
+            Data = data.Clone();
+            Tenant = tenant;
+            Schema = schema;
+            Id = id;
+            Version = version;
         }
+
+        public ContentData Data { get; }
+
+        public NamedId<DomainId> Tenant { get; }
+        
+        public NamedId<DomainId> Schema { get; }
+
+        public DomainId Id { get; }
+
+        public long Version { get; }
 
         /// <summary>
         /// References the <see cref="WorkItem"/> that part is composed of.
         /// </summary>
-        public DomainId? Owner
+        public virtual DomainId? Owner
         {
             get
             {
-                string[] ids = data.GetFromJsonArray("owner");
+                string[] ids = Data.GetFromJsonArray("owner");
                 if (ids.Length > 1)
                 {
                     throw new ValidationException(
@@ -43,31 +49,18 @@ namespace Enablon.Extensions.Domain.WorkItemAggregate
             {
                 if (value == null)
                 {
-                    data.Remove("owner");
+                    Data.Remove("owner");
                 }
                 else
                 {
-                    data.SetAsJsonArray("owner", new[] { value.Value.ToString()});
+                    Data.SetAsJsonArray("owner", new[] { value.Value.ToString()});
                 }
             }
         }
 
-        public static bool AppliesTo(ContentCommand contentCommand)
+        public static bool AppliesTo(NamedId<DomainId> schema)
         {
-            return contentCommand.SchemaId.Name == SchemaName;
-        }
-
-        public Task Save()
-        {
-            return PublishAsync(new UpdateContent
-            {
-                SchemaId = entity.SchemaId,
-                ContentId = entity.Id,
-                Data = data,
-                ExpectedVersion = entity.Version,
-                DoNotScript = true,
-                DoNotValidate = true
-            });
+            return schema.Name == SchemaName;
         }
     }
 }

@@ -36,14 +36,15 @@ namespace Enablon.Extensions.Domain.WorkItemAggregate
 
         private async Task HandleWorkItemChange(CommandContext context, ContentDataCommand updateRequest)
         {
-            var factory = new DomainEntityFactory(contentLoader, context);
+            var repository = new EntityRepository(contentLoader, context.CommandBus);
 
-            var newState = factory.BuildWorkItemFrom(context.Result<IContentEntity>());
+            var entity = context.Result<IContentEntity>();
+            var newState = new WorkItem(entity.Id, entity.Version, entity.Data);
 
             WorkItem? previousState = null;
             if (newState.Version > 1)
             {
-                previousState = await factory.FindWorkItem(
+                previousState = await repository.FindWorkItem(entity.AppId.Id,
                     updateRequest.ContentId,
                     updateRequest.ExpectedVersion);
             }
@@ -52,25 +53,25 @@ namespace Enablon.Extensions.Domain.WorkItemAggregate
             {
                 if (previousState?.RiskAssessmentPart != null)
                 {
-                    var oldPart = await factory.FindRiskAssessmentPart(
+                    var oldPart = await repository.FindRiskAssessmentPart(entity.AppId.Id,
                         previousState.RiskAssessmentPart.Value);
 
                     if (oldPart != null)
                     {
                         oldPart.Owner = null;
-                        await oldPart.Save();
+                        await repository.Save(oldPart, updateRequest.Actor, updateRequest.User);
                     }
                 }
 
                 if (newState.RiskAssessmentPart != null)
                 {
-                    var newPart = await factory.FindRiskAssessmentPart(
+                    var newPart = await repository.FindRiskAssessmentPart(entity.AppId.Id, 
                         newState.RiskAssessmentPart.Value);
 
                     if (newPart != null)
                     {
                         newPart.Owner = newState.Id;
-                        await newPart.Save();
+                        await repository.Save(newPart, updateRequest.Actor, updateRequest.User);
                     }
                 }
             }

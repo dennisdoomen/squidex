@@ -3,6 +3,7 @@ using Enablon.Extensions.Provisioning;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Squidex.Domain.Apps.Core.ValidateContent;
 using Squidex.Infrastructure.Commands;
 using Squidex.Infrastructure.Plugins;
 
@@ -16,6 +17,7 @@ namespace Enablon.Extensions
             services.AddSingleton<ICustomCommandMiddleware, ConnectRiskAssessmentToParentWorkItemCommandMiddleware>();
             services.AddSingleton<ICustomCommandMiddleware, ProvisionInitialTenantSchema>();
             services.AddSingleton<ICustomCommandMiddleware, PreventRemovingRiskAssessmentPartWhenInUseCommandMiddleware>();
+            services.AddSingleton<IValidatorsFactory, ValidatorsFactory>();
         }
     }
 }
